@@ -123,7 +123,11 @@ export const updateProduct = TryCatch(async (req, res, next) => {
   if (category) product.category = category;
   if (stock) product.stock = stock;
   await product.save();
-  await invalidateCache({ product: true });
+  await invalidateCache({
+    product: true,
+    admin: true,
+    productID: String(product._id),
+  });
   return res
     .status(201)
     .json({ success: true, message: "Product updated successfully" });
@@ -134,7 +138,11 @@ export const deleteProduct = TryCatch(async (req, res, next) => {
   const product = await Product.findById(id);
   if (!product) return next(new ErrorHandler("Invalid Product Id", 400));
   await Product.findByIdAndDelete(id);
-  await invalidateCache({ product: true });
+  await invalidateCache({
+    product: true,
+    admin: true,
+    productID: String(product._id),
+  });
   rm(product.photo!, () => {
     console.log("Pic deleted ");
   });
